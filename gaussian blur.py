@@ -1,29 +1,28 @@
 import cv2
 
 # Load the image from file
-image = cv2.imread('test1.jpg')
+image = cv2.imread('test.jpg')
 # Check if the image was successfully loaded
 if image is None:
     raise ValueError("Image not found or unable to load.")
+
+# Apply thresholding
+# Invert the threshold: set pixels of 255 to 0, and those less than 255 to 255
+image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+_, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
 
 # Apply Gaussian Blur
 # ksize is the kernel size, must be odd and positive (e.g., (5, 5))
 # sigmaX is the standard deviation in the X direction, set to 0 to let OpenCV calculate it based on the kernel size
 blurred_image = cv2.GaussianBlur(image, (5, 5), 0)
-# Define the output filename
-output_filename = 'output_image.jpg'
+blurred_image = cv2.equalizeHist(blurred_image)
 
-# Save the image
-success = cv2.imwrite(output_filename, blurred_image)
-#blurred_image = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2GRAY)
-
-# Apply thresholding
-# Invert the threshold: set pixels of 255 to 0, and those less than 255 to 255
-#_, blurred_image = cv2.threshold(blurred_image, 254, 255, cv2.THRESH_BINARY_INV)
+# Apply binary thresholding to the image
+_, blurred_image = cv2.threshold(blurred_image, 0, 255, cv2.THRESH_BINARY)
 
 # Define the desired window size
-window_width = 330
-window_height = 420
+window_width = 450
+window_height = 450
 
 # Create a named window
 cv2.namedWindow('Original Image', cv2.WINDOW_NORMAL)
