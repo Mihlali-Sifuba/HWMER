@@ -10,7 +10,7 @@ def thicken_character_gaussian_blur(image: np.ndarray, kernel_size: Tuple[int, i
     
     # Check if image is a numpy array
     if not isinstance(image, np.ndarray):
-        raise ValueError("Input image must be a numpy array")
+        raise TypeError("Input image must be a numpy array")
     
     # Ensure image has non-zero size
     if image.size == 0:
