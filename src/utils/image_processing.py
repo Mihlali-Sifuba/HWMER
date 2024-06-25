@@ -1,6 +1,44 @@
+from calendar import c
 import cv2
 import numpy as np
 from typing import Tuple, Union
+
+
+def thicken_character_edge_detection(image: np.ndarray, thickness: int = 2) -> np.ndarray:
+    """
+    Detect and thicken the edges of characters in a given image.
+
+    Parameters:
+    image (np.ndarray): Input image in BGR format.
+    thickness (int): Thickness of the edge lines. Default is 2.
+
+    Returns:
+    np.ndarray: Image with thickened character edges.
+    """
+    # Input validation
+    if not isinstance(image, np.ndarray):
+        raise TypeError("Input image must be a numpy array.")
+    # Ensure image has non-zero size
+    if image.size == 0:
+        raise ValueError("Input image has zero size")
+    # Check if image has a valid shape
+    if len(image.shape) not in [2, 3] or image.shape[0] <= 0 or image.shape[1] <= 0:
+        raise ValueError("Input image must have a valid shape (height, width) or (height, width, channels)")
+    # Check for NaN or Inf values in the image
+    if np.any(np.isnan(image)) or np.any(np.isinf(image)):
+        raise ValueError("Input image contains NaN or Inf values")
+    if not isinstance(thickness, int) or thickness < 0:
+        raise ValueError("Thickness must be a non-negative integer.")
+    try:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
+        contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(image, contours, -1, 255, thickness)
+        return image
+    except cv2.error as e:
+        raise RuntimeError(f"OpenCV error: {e}")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
 
 def thicken_character_binary_morphology():
     pass
