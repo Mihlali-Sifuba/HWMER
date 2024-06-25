@@ -70,21 +70,26 @@ def thicken_character_gaussian_blur(image: np.ndarray, kernel_size: Tuple[int, i
 
     if not (isinstance(sigmaY, (int, float)) and sigmaY >= 0):
         raise ValueError("sigmaY must be a non-negative number")
-
-    # Apply thresholding
-    # Invert the threshold: set pixels of 255 to 0, and those less than 255 to 255
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
     
-    # Apply Gaussian Blur
-    # ksize is the kernel size, must be odd and positive (e.g., (5, 5))
-    # sigmaX is the standard deviation in the X direction, set to 0 to let OpenCV calculate it based on the kernel size
-    image = cv2.GaussianBlur(image, kernel_size, sigmaX, None, sigmaY=sigmaY)
-    image = cv2.equalizeHist(image)
+    try:
+        # Apply thresholding
+        # Invert the threshold: set pixels of 255 to 0, and those less than 255 to 255
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
+        
+        # Apply Gaussian Blur
+        # ksize is the kernel size, must be odd and positive (e.g., (5, 5))
+        # sigmaX is the standard deviation in the X direction, set to 0 to let OpenCV calculate it based on the kernel size
+        image = cv2.GaussianBlur(image, kernel_size, sigmaX, None, sigmaY=sigmaY)
+        image = cv2.equalizeHist(image)
 
-    # Apply binary thresholding to the image
-    _, image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY)
-    # Convert image to uint8 if it's not already
-    if image.dtype != np.uint8:
-        image = image.astype(np.uint8)
-    return image
+        # Apply binary thresholding to the image
+        _, image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY)
+        # Convert image to uint8 if it's not already
+        if image.dtype != np.uint8:
+            image = image.astype(np.uint8)
+        return image
+    except cv2.error as e:
+        raise RuntimeError(f"OpenCV error: {e}")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
