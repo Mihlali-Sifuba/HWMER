@@ -1,4 +1,3 @@
-from calendar import c
 import cv2
 import numpy as np
 from typing import Tuple, Union
@@ -40,8 +39,37 @@ def thicken_character_edge_detection(image: np.ndarray, thickness: int = 2) -> n
     except Exception as e:
         print(f"Error occurred: {str(e)}")
 
-def thicken_character_binary_morphology():
-    pass
+def thicken_character_binary_morphology(image: np.ndarray, closing_kernel: np.ndarray = None, dilation_kernel: np.ndarray = None) -> np.ndarray:
+    if image is None:
+        raise ValueError("Input image is None")
+    # Check if image is a numpy array
+    if not isinstance(image, np.ndarray):
+        raise TypeError("Input image must be a numpy array")
+    # Ensure image has non-zero size
+    if image.size == 0:
+        raise ValueError("Input image has zero size")
+    # Check if image has a valid shape
+    if len(image.shape) not in [2, 3] or image.shape[0] <= 0 or image.shape[1] <= 0:
+        raise ValueError("Input image must have a valid shape (height, width) or (height, width, channels)")
+    
+    # Check for NaN or Inf values in the image
+    if np.any(np.isnan(image)) or np.any(np.isinf(image)):
+        raise ValueError("Input image contains NaN or Inf values")
+    try:
+        if closing_kernel is None:
+            closing_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
+        if dilation_kernel is None:
+            dilation_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
+        image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, closing_kernel)
+        image = cv2.morphologyEx(image, cv2.MORPH_DILATE, dilation_kernel)
+        return image
+    except cv2.error as e:
+        raise RuntimeError(f"OpenCV error: {e}")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
 def thicken_character_gaussian_blur(image: np.ndarray, kernel_size: Tuple[int, int], sigmaX: Union[int, float], sigmaY: Union[int, float]=0) -> np.ndarray:
     if image is None:
         raise ValueError("Input image is None")
