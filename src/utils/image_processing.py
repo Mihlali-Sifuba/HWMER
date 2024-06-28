@@ -55,6 +55,13 @@ def thicken_character_binary_morphology(image: np.ndarray, closing_kernel: np.nd
     # Check for NaN or Inf values in the image
     if np.any(np.isnan(image)) or np.any(np.isinf(image)):
         raise ValueError("Input image contains NaN or Inf values")
+    # Validate kernels
+    if not isinstance(closing_kernel, np.ndarray) or not isinstance(dilation_kernel, np.ndarray):
+        raise TypeError("Kernels must be numpy arrays")
+    if closing_kernel.ndim != 2 or dilation_kernel.ndim != 2:
+        raise ValueError("Kernels must be 2-dimensional")
+    if not np.array_equal(closing_kernel, closing_kernel.astype(bool)) or not np.array_equal(dilation_kernel, dilation_kernel.astype(bool)):
+        raise ValueError("Kernels must only contain values of 0 or 1")
     try:
         if closing_kernel is None:
             closing_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
