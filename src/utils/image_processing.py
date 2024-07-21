@@ -56,11 +56,17 @@ def thicken_character_binary_morphology(image: np.ndarray, closing_kernel: np.nd
     if np.any(np.isnan(image)) or np.any(np.isinf(image)):
         raise ValueError("Input image contains NaN or Inf values")
     # Validate kernels
-    if not isinstance(closing_kernel, np.ndarray) or not isinstance(dilation_kernel, np.ndarray):
-        raise TypeError("Kernels must be numpy arrays")
-    if closing_kernel.ndim != 2 or dilation_kernel.ndim != 2:
-        raise ValueError("Kernels must be 2-dimensional")
-    if not np.array_equal(closing_kernel, closing_kernel.astype(bool)) or not np.array_equal(dilation_kernel, dilation_kernel.astype(bool)):
+    if not (closing_kernel is None or isinstance(closing_kernel, np.ndarray)):
+        raise TypeError("Closing kernel must be None or a numpy array")
+    if not (dilation_kernel is None or isinstance(dilation_kernel, np.ndarray)):
+        raise TypeError("Dilation kernel must be None or a numpy array")
+    if closing_kernel is not None and closing_kernel.ndim != 2:
+        raise ValueError("Closing kernel must be a 2-dimensional array")
+    if dilation_kernel is not None and dilation_kernel.ndim != 2:
+        raise ValueError("Dilation kernel must be a 2-dimensional array")
+    if closing_kernel is not None and not np.array_equal(closing_kernel, closing_kernel.astype(bool)):
+        raise ValueError("Kernels must only contain values of 0 or 1")
+    if dilation_kernel is not None and not np.array_equal(dilation_kernel, dilation_kernel.astype(bool)):
         raise ValueError("Kernels must only contain values of 0 or 1")
     try:
         if closing_kernel is None:
